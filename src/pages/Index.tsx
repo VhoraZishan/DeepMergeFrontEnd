@@ -16,10 +16,20 @@ import {
   Globe
 } from "lucide-react";
 import oceanHero from "@/assets/ocean-hero.jpg";
+import { useEffect } from "react";
+import { fetchJson } from "@/lib/utils";
 
 const Index = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [apiOk, setApiOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // simple health check to backend
+    fetchJson<{ status: string }>("/healthz")
+      .then((res) => setApiOk(res.status === "ok"))
+      .catch(() => setApiOk(false));
+  }, []);
 
   return (
     <div className={`min-h-screen bg-gradient-surface ${darkMode ? 'dark' : ''}`}>
@@ -48,6 +58,11 @@ const Index = () => {
                       <h1 className="text-4xl font-bold mb-2 animate-slide-up">
                         Welcome to FloatChat
                       </h1>
+                      {apiOk !== null && (
+                        <p className={`text-sm mb-1 ${apiOk ? "text-green-200" : "text-red-200"}`}>
+                          Backend: {apiOk ? "Connected" : "Offline"}
+                        </p>
+                      )}
                       <p className="text-xl opacity-90 animate-slide-up" style={{ animationDelay: '200ms' }}>
                         Your AI-powered oceanographic data discovery and visualization platform
                       </p>
