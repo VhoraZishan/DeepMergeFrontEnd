@@ -19,6 +19,8 @@ import {
   MapPin,
   Save
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { fetchJson } from "@/lib/utils";
 
 const Settings = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -78,6 +80,9 @@ const Settings = () => {
                 <p className="text-muted-foreground">
                   Manage your account preferences and application settings
                 </p>
+                <div className="mt-2">
+                  <BackendStatus />
+                </div>
               </div>
             </div>
 

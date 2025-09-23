@@ -18,6 +18,7 @@ import {
 import oceanHero from "@/assets/ocean-hero.jpg";
 import { useEffect } from "react";
 import { fetchJson } from "@/lib/utils";
+import { BackendStatus } from "@/components/system/BackendStatus";
 
 const Index = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -47,6 +48,7 @@ const Index = () => {
             {/* Hero Section */}
             <div className="animate-fade-in">
               <Breadcrumb />
+              <BackendStatus />
               <div className="mt-4 relative overflow-hidden rounded-2xl">
                 <div 
                   className="h-48 bg-cover bg-center bg-no-repeat relative"
@@ -56,7 +58,7 @@ const Index = () => {
                   <div className="relative z-10 h-full flex items-center px-8">
                     <div className="text-white">
                       <h1 className="text-4xl font-bold mb-2 animate-slide-up">
-                        Welcome to FloatChat
+                        CMLRE Data Platform
                       </h1>
                       {apiOk !== null && (
                         <p className={`text-sm mb-1 ${apiOk ? "text-green-200" : "text-red-200"}`}>

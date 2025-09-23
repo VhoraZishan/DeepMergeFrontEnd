@@ -17,6 +17,10 @@ import {
   Star,
   Clock
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { Button as UIButton } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/lib/utils";
 
 const searchResults = [
   {
@@ -90,6 +94,16 @@ const SearchPage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  const runSearchExample = async () => {
+    try {
+      const res = await fetchJson<{ summary: string }>("/api/v1/ai/summary?data_type=oceanography&region=india");
+      toast({ title: "Search Assistant", description: res.summary || "Received" });
+    } catch (e: any) {
+      toast({ title: "Assistant failed", description: String(e?.message || e), variant: "destructive" });
+    }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -139,6 +153,10 @@ const SearchPage = () => {
                 <p className="text-muted-foreground">
                   Find datasets, floats, analyses, and reports across the oceanographic database
                 </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <BackendStatus />
+                  <UIButton size="sm" variant="outline" onClick={runSearchExample}>Ask AI</UIButton>
+                </div>
               </div>
             </div>
 

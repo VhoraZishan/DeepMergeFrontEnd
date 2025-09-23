@@ -20,6 +20,7 @@ import {
   Camera,
   Edit3
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
 
 const Profile = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -87,6 +88,9 @@ const Profile = () => {
                 <p className="text-muted-foreground">
                   Manage your professional profile and view your activity
                 </p>
+                <div className="mt-2">
+                  <BackendStatus />
+                </div>
               </div>
             </div>
 

@@ -19,6 +19,10 @@ import {
   Clock,
   Waves
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { Button as UIButton } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/lib/utils";
 
 const liveFeeds = [
   {
@@ -169,6 +173,19 @@ const LiveFeeds = () => {
                   </div>
                   <Button variant="outline" size="sm">Auto Refresh: ON</Button>
                 </div>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <BackendStatus />
+                <UIButton size="sm" variant="outline" onClick={async () => {
+                  try {
+                    const res = await fetchJson<{ active_connections: number }>("/ws/status");
+                    // eslint-disable-next-line no-alert
+                    alert(`WS connections: ${res.active_connections}`);
+                  } catch (e) {
+                    // eslint-disable-next-line no-alert
+                    alert("WS status failed");
+                  }
+                }}>Check WS</UIButton>
               </div>
             </div>
 

@@ -19,6 +19,7 @@ import {
   Users
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { BackendStatus } from "@/components/system/BackendStatus";
 
 const Global = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -68,6 +69,9 @@ const Global = () => {
               <div className="mt-4">
                 <h1 className="text-3xl font-bold text-foreground mb-2">Global Ocean Monitoring</h1>
                 <p className="text-muted-foreground">Worldwide ARGO float network status and data overview</p>
+                <div className="mt-2">
+                  <BackendStatus />
+                </div>
               </div>
             </div>
 

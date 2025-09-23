@@ -17,6 +17,9 @@ import {
   Waves,
   Download
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/lib/utils";
 
 const temperatureTrend = [
   { month: "Jul", temp: 23.1, profiles: 145 },
@@ -47,6 +50,18 @@ const Analytics = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [timeRange, setTimeRange] = useState("6months");
+  const { toast } = useToast();
+
+  const runSummary = async () => {
+    try {
+      const res = await fetchJson<{ summary: string }>(
+        `/api/v1/ai/summary?data_type=oceanography&region=kerala`
+      );
+      toast({ title: "AI Summary", description: res.summary || "Received summary." });
+    } catch (e: any) {
+      toast({ title: "Summary failed", description: String(e?.message || e), variant: "destructive" });
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-gradient-surface ${darkMode ? 'dark' : ''}`}>
@@ -75,12 +90,13 @@ const Analytics = () => {
                   <Button variant="outline" size="sm">
                     Last 6 months
                   </Button>
-                  <Button className="btn-ocean" size="sm">
+                  <Button className="btn-ocean" size="sm" onClick={runSummary}>
                     <Download className="h-4 w-4 mr-2" />
-                    Export Report
+                    AI Summary
                   </Button>
                 </div>
               </div>
+              <BackendStatus />
             </div>
 
             {/* Key Metrics */}

@@ -15,6 +15,7 @@ import {
   Droplets,
   Wind
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
 
 const mapData = [
   { id: "4902917", lat: -10.5, lon: 85.3, status: "active", lastUpdate: "2 hours ago", temp: "24.3°C" },
@@ -39,6 +40,7 @@ const Map = () => {
           <main className="flex-1 overflow-y-auto p-6 space-y-6">
             <div className="animate-fade-in">
               <Breadcrumb />
+              <BackendStatus />
               <div className="mt-4">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
                   Ocean Map

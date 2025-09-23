@@ -14,6 +14,9 @@ import {
   TrendingUp,
   Zap
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/lib/utils";
 
 const quickQueries = [
   {
@@ -45,6 +48,16 @@ const quickQueries = [
 const Chat = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const { toast } = useToast();
+
+  const loadExamples = async () => {
+    try {
+      const res = await fetchJson<{ examples: string[] }>("/api/v1/ai/examples");
+      toast({ title: "AI Examples", description: (res.examples || []).slice(0, 2).join(" • ") || "No examples" });
+    } catch (e: any) {
+      toast({ title: "Examples failed", description: String(e?.message || e), variant: "destructive" });
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-gradient-surface ${darkMode ? 'dark' : ''}`}>
@@ -64,6 +77,10 @@ const Chat = () => {
                 <p className="text-muted-foreground">
                   Ask questions about ARGO float data using natural language
                 </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <BackendStatus />
+                  <Button size="sm" variant="outline" onClick={loadExamples}>Load AI Examples</Button>
+                </div>
               </div>
             </div>
 

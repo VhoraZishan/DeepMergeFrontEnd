@@ -17,6 +17,9 @@ import {
   Droplets,
   MapPin
 } from "lucide-react";
+import { BackendStatus } from "@/components/system/BackendStatus";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/lib/utils";
 
 const sampleData = [
   {
@@ -70,6 +73,16 @@ const DataExplorer = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const suggestSql = async () => {
+    try {
+      const res = await fetchJson<{ sql: string }>("/api/v1/ai/sql?question=Example+temperature+query");
+      toast({ title: "SQL Suggested", description: res.sql });
+    } catch (e: any) {
+      toast({ title: "SQL failed", description: String(e?.message || e), variant: "destructive" });
+    }
+  };
 
   const filteredData = sampleData.filter(item => 
     item.floatId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,6 +107,10 @@ const DataExplorer = () => {
                 <p className="text-muted-foreground">
                   Browse and analyze ARGO float datasets and oceanographic measurements
                 </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <BackendStatus />
+                  <Button size="sm" variant="outline" onClick={suggestSql}>Suggest SQL</Button>
+                </div>
               </div>
             </div>
 
