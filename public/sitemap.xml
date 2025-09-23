@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://example.com/chat</loc>
+  </url>
+  <url>
+    <loc>https://example.com/data</loc>
+  </url>
+  <url>
+    <loc>https://example.com/map</loc>
+  </url>
+  <url>
+    <loc>https://example.com/analytics</loc>
+  </url>
+  <url>
+    <loc>https://example.com/feeds</loc>
+  </url>
+  <url>
+    <loc>https://example.com/search</loc>
+  </url>
+  <url>
+    <loc>https://example.com/settings</loc>
+  </url>
+  <url>
+    <loc>https://example.com/profile</loc>
+  </url>
+  <url>
+    <loc>https://example.com/global</loc>
+  </url>
+</urlset>
+
+
