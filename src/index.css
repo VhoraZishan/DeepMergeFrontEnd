@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FloatChat Design System - Ocean-inspired professional color palette
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Ocean-themed color palette */
+    --background: 210 40% 98%;
+    --foreground: 220 39% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 39% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 39% 11%;
+
+    /* Ocean blue primary */
+    --primary: 210 100% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 100% 60%;
+
+    /* Deep ocean secondary */
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Light ocean muted */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 25% 45%;
+
+    /* Teal accent */
+    --accent: 175 80% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 210 100% 40%;
+
+    /* Ocean gradients */
+    --gradient-ocean: linear-gradient(135deg, hsl(210, 100%, 40%), hsl(195, 100%, 50%));
+    --gradient-deep: linear-gradient(135deg, hsl(215, 25%, 27%), hsl(210, 30%, 35%));
+    --gradient-surface: linear-gradient(180deg, hsl(195, 100%, 95%), hsl(210, 40%, 98%));
+    
+    /* Shadows */
+    --shadow-ocean: 0 10px 30px -10px hsl(210, 100%, 40%, 0.3);
+    --shadow-deep: 0 20px 40px -15px hsl(215, 25%, 27%, 0.4);
+    --shadow-card: 0 4px 20px -4px hsl(215, 20%, 50%, 0.15);
+    
+    /* Animation timings */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark ocean theme */
+    --background: 220 30% 8%;
+    --foreground: 210 40% 95%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 210 40% 95%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 210 40% 95%;
+
+    --primary: 195 100% 50%;
+    --primary-foreground: 220 30% 8%;
+    --primary-glow: 195 100% 70%;
+
+    --secondary: 215 25% 18%;
+    --secondary-foreground: 210 40% 95%;
+
+    --muted: 215 25% 15%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 175 80% 45%;
+    --accent-foreground: 220 30% 8%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 40% 95%;
+
+    --border: 215 25% 18%;
+    --input: 215 25% 18%;
+    --ring: 195 100% 50%;
+
+    /* Dark ocean gradients */
+    --gradient-ocean: linear-gradient(135deg, hsl(195, 100%, 50%), hsl(180, 100%, 60%));
+    --gradient-deep: linear-gradient(135deg, hsl(220, 30%, 8%), hsl(215, 25%, 15%));
+    --gradient-surface: linear-gradient(180deg, hsl(220, 25%, 12%), hsl(215, 25%, 18%));
+    
+    --shadow-ocean: 0 10px 30px -10px hsl(195, 100%, 50%, 0.4);
+    --shadow-deep: 0 20px 40px -15px hsl(220, 30%, 5%, 0.6);
+    --shadow-card: 0 4px 20px -4px hsl(220, 30%, 5%, 0.3);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Ocean-themed component classes */
+  .card-ocean {
+    @apply bg-card backdrop-blur-sm border border-border/50;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+  
+  .card-ocean:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-ocean);
+  }
+  
+  .gradient-ocean {
+    background: var(--gradient-ocean);
+  }
+  
+  .gradient-deep {
+    background: var(--gradient-deep);
+  }
+  
+  .gradient-surface {
+    background: var(--gradient-surface);
+  }
+  
+  .stat-card {
+    @apply card-ocean p-6 rounded-xl;
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--card)/0.8));
+  }
+  
+  .hover-lift {
+    transition: var(--transition-bounce);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+  
+  .btn-ocean {
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-300;
+    background: var(--gradient-ocean);
+    color: hsl(var(--primary-foreground));
+    box-shadow: var(--shadow-ocean);
+  }
+  
+  .btn-ocean:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px -10px hsl(210, 100%, 40%, 0.4);
+  }
+}
