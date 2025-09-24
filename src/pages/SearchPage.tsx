@@ -20,7 +20,7 @@ import {
 import { BackendStatus } from "@/components/system/BackendStatus";
 import { Button as UIButton } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { fetchJson } from "@/lib/utils";
+import { aiApi } from "@/lib/api";
 
 const searchResults = [
   {
@@ -98,10 +98,33 @@ const SearchPage = () => {
 
   const runSearchExample = async () => {
     try {
-      const res = await fetchJson<{ summary: string }>("/api/v1/ai/summary?data_type=oceanography&region=india");
-      toast({ title: "Search Assistant", description: res.summary || "Received" });
+      const res = await aiApi.getSummary("oceanography", "india");
+      toast({ 
+        title: "Search Assistant", 
+        description: res.summary || "Received summary from backend." 
+      });
     } catch (e: any) {
-      toast({ title: "Assistant failed", description: String(e?.message || e), variant: "destructive" });
+      toast({ 
+        title: "Assistant failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const runQueryExample = async () => {
+    try {
+      const res = await aiApi.query("Show me recent temperature profiles from ARGO floats in the Indian Ocean");
+      toast({ 
+        title: "Query Result", 
+        description: res.response || res.answer || "Query processed successfully." 
+      });
+    } catch (e: any) {
+      toast({ 
+        title: "Query failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -156,6 +179,7 @@ const SearchPage = () => {
                 <div className="mt-2 flex items-center gap-2">
                   <BackendStatus />
                   <UIButton size="sm" variant="outline" onClick={runSearchExample}>Ask AI</UIButton>
+                  <UIButton size="sm" variant="outline" onClick={runQueryExample}>Run Query</UIButton>
                 </div>
               </div>
             </div>

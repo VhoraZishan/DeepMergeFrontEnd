@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { BackendStatus } from "@/components/system/BackendStatus";
 import { useToast } from "@/hooks/use-toast";
-import { fetchJson } from "@/lib/utils";
+import { aiApi } from "@/lib/api";
 
 const sampleData = [
   {
@@ -77,10 +77,36 @@ const DataExplorer = () => {
 
   const suggestSql = async () => {
     try {
-      const res = await fetchJson<{ sql: string }>("/api/v1/ai/sql?question=Example+temperature+query");
-      toast({ title: "SQL Suggested", description: res.sql });
+      const res = await aiApi.suggestSql("Show recent temperature profiles from ARGO floats in the Indian Ocean");
+      toast({ 
+        title: "SQL Suggested", 
+        description: res.sql || "Generated SQL query from backend." 
+      });
     } catch (e: any) {
-      toast({ title: "SQL failed", description: String(e?.message || e), variant: "destructive" });
+      toast({ 
+        title: "SQL failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const suggestVisualization = async () => {
+    try {
+      const res = await aiApi.suggestVisualization(
+        "Show temperature trends over time", 
+        ["time", "temperature", "depth"]
+      );
+      toast({ 
+        title: "Visualization Suggested", 
+        description: JSON.stringify(res.spec || res, null, 2) 
+      });
+    } catch (e: any) {
+      toast({ 
+        title: "Visualization failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -110,6 +136,7 @@ const DataExplorer = () => {
                 <div className="mt-2 flex items-center gap-2">
                   <BackendStatus />
                   <Button size="sm" variant="outline" onClick={suggestSql}>Suggest SQL</Button>
+                  <Button size="sm" variant="outline" onClick={suggestVisualization}>Suggest Viz</Button>
                 </div>
               </div>
             </div>

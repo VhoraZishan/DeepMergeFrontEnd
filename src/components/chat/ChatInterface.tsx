@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Bot, User, MapPin, Loader2 } from "lucide-react";
+import { aiApi } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -28,70 +29,6 @@ interface UserLocation {
   country?: string;
   permission: 'granted' | 'denied' | 'pending';
 }
-
-// Ocean data API for real responses
-const getOceanData = async (query: string, location?: UserLocation) => {
-  // Simulate API call to ocean database
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  if (location) {
-    const { latitude, longitude, city, country } = location;
-    
-    // Location-specific responses
-    if (query.toLowerCase().includes('temperature')) {
-      const temp = 15 + Math.sin(latitude * Math.PI / 180) * 10 + Math.random() * 5;
-      return `Based on your location in ${city}, ${country} (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°), I found recent ocean temperature data from nearby ARGO floats:
-
-🌊 **Current Ocean Conditions Near You:**
-- Surface temperature: ${temp.toFixed(1)}°C
-- Nearest ARGO float: #4902917 (${Math.abs(latitude - 2).toFixed(1)}° away)
-- Last measurement: 3 hours ago
-- Depth profile: Available down to 2000m
-
-The temperature gradient shows ${temp > 20 ? 'typical tropical' : temp > 10 ? 'temperate' : 'cool'} conditions for your region. Would you like me to show the full depth profile or compare with historical data?`;
-    }
-    
-    if (query.toLowerCase().includes('salinity')) {
-      const salinity = 34.5 + Math.random() * 1.5;
-      return `Analyzing salinity data near ${city}, ${country}:
-
-🧂 **Salinity Analysis:**
-- Current surface salinity: ${salinity.toFixed(2)} PSU
-- Regional average: ${(salinity - 0.3).toFixed(2)} PSU
-- Trend: ${salinity > 35 ? 'Above average' : 'Normal range'}
-- Data source: 3 active ARGO floats within 50km
-
-The salinity levels indicate ${salinity > 35 ? 'evaporation-dominated conditions' : 'balanced precipitation-evaporation'}. This is ${salinity > 35 ? 'typical for subtropical regions' : 'normal for your latitude'}.`;
-    }
-    
-    if (query.toLowerCase().includes('argo') || query.toLowerCase().includes('float')) {
-      const floatCount = Math.floor(Math.random() * 20) + 5;
-      return `ARGO Float Network Analysis for ${city}, ${country}:
-
-🎈 **Active Floats in Your Region:**
-- ${floatCount} active floats within 200km radius
-- Closest float: #4902917 (${Math.abs(latitude - 2).toFixed(1)}° away)
-- Latest profiles: ${floatCount * 2} temperature, ${floatCount} salinity
-- BGC sensors: ${Math.floor(floatCount * 0.3)} floats equipped
-
-**Recent Activity:**
-- Float #4902917: Completed cycle 3 hours ago
-- Float #4901234: Currently at 1000m depth
-- Float #4905678: Surfaced 2 days ago
-
-All floats are transmitting normally. Would you like detailed profiles from any specific float?`;
-    }
-  }
-  
-  // General responses without location
-  const responses = [
-    "I've analyzed the ARGO database for your query. The global ocean monitoring network shows interesting patterns in this region. Could you specify a particular location or time period for more detailed analysis?",
-    "Your query matches several oceanographic datasets. To provide the most accurate analysis, I'd recommend enabling location services so I can focus on data relevant to your area.",
-    "I found relevant ocean data, but location-specific information would help me provide more targeted insights. Would you like to share your location for personalized results?"
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
-};
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -221,8 +158,9 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // Get AI response based on location
-      const aiContent = await getOceanData(inputValue, userLocation || undefined);
+      // Get AI response from the backend
+      const result = await aiApi.query(inputValue);
+      const aiContent = result.response || result.answer || "I've processed your query. Here are the results:";
       
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -234,6 +172,7 @@ export function ChatInterface() {
       
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
+      console.error("API Error:", error);
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         content: "I apologize, but I'm having trouble accessing the ocean database right now. Please try again in a moment, or rephrase your question.",

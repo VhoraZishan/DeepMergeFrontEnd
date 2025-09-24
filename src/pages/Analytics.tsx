@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { BackendStatus } from "@/components/system/BackendStatus";
 import { useToast } from "@/hooks/use-toast";
-import { fetchJson } from "@/lib/utils";
+import { aiApi, analyticsApi } from "@/lib/api";
 
 const temperatureTrend = [
   { month: "Jul", temp: 23.1, profiles: 145 },
@@ -54,12 +54,33 @@ const Analytics = () => {
 
   const runSummary = async () => {
     try {
-      const res = await fetchJson<{ summary: string }>(
-        `/api/v1/ai/summary?data_type=oceanography&region=kerala`
-      );
-      toast({ title: "AI Summary", description: res.summary || "Received summary." });
+      const res = await aiApi.getSummary("oceanography", "kerala");
+      toast({ 
+        title: "AI Summary", 
+        description: res.summary || "Received summary from backend." 
+      });
     } catch (e: any) {
-      toast({ title: "Summary failed", description: String(e?.message || e), variant: "destructive" });
+      toast({ 
+        title: "Summary failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const runCorrelation = async () => {
+    try {
+      const res = await analyticsApi.correlate("sst", "Sardinella longiceps", "kerala");
+      toast({ 
+        title: "Correlation Analysis", 
+        description: `Pearson R: ${res.pearson_r?.toFixed(3) || 'N/A'} - ${res.message}` 
+      });
+    } catch (e: any) {
+      toast({ 
+        title: "Correlation failed", 
+        description: String(e?.message || e), 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -93,6 +114,10 @@ const Analytics = () => {
                   <Button className="btn-ocean" size="sm" onClick={runSummary}>
                     <Download className="h-4 w-4 mr-2" />
                     AI Summary
+                  </Button>
+                  <Button className="btn-ocean" size="sm" onClick={runCorrelation}>
+                    <Activity className="h-4 w-4 mr-2" />
+                    Run Correlation
                   </Button>
                 </div>
               </div>
