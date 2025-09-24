@@ -31,7 +31,7 @@ const Settings = () => {
   const [settings, setSettings] = useState({
     // Profile
     name: "Dr. Ocean Researcher",
-    email: "ocean.researcher@floatchat.org",
+    email: "ocean.researcher@cmlre.org",
     institution: "Marine Research Institute",
     
     // Notifications
@@ -53,7 +53,7 @@ const Settings = () => {
 
   const handleSave = () => {
     // Save settings to localStorage or backend
-    localStorage.setItem('floatchat-settings', JSON.stringify(settings));
+    localStorage.setItem('cmlre-settings', JSON.stringify(settings));
     toast({
       title: "Settings saved",
       description: "Your preferences have been updated successfully.",

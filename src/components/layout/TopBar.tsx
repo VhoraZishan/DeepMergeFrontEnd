@@ -91,7 +91,7 @@ export function TopBar({ darkMode, setDarkMode }: TopBarProps) {
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">Dr. Ocean Researcher</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  ocean.researcher@floatchat.org
+                  ocean.researcher@cmlre.org
                 </p>
               </div>
             </DropdownMenuLabel>

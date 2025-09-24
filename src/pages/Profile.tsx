@@ -29,7 +29,7 @@ const Profile = () => {
 
   const [profile, setProfile] = useState({
     name: "Dr. Ocean Researcher",
-    email: "ocean.researcher@floatchat.org",
+    email: "ocean.researcher@cmlre.org",
     title: "Senior Marine Scientist",
     institution: "Marine Research Institute",
     location: "Woods Hole, Massachusetts",
@@ -65,7 +65,7 @@ const Profile = () => {
   ];
 
   const handleSave = () => {
-    localStorage.setItem('floatchat-profile', JSON.stringify(profile));
+    localStorage.setItem('cmlre-profile', JSON.stringify(profile));
     toast({
       title: "Profile updated",
       description: "Your profile information has been saved successfully.",

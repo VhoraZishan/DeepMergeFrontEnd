@@ -53,7 +53,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
               <Waves className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-white">FloatChat</h1>
+              <h1 className="text-lg font-semibold text-white">CMLRE Data Platform</h1>
               <p className="text-xs text-slate-400">Ocean Data Platform</p>
             </div>
           </div>
