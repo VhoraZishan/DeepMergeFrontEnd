@@ -6,7 +6,6 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { ChatInterface } from "@/components/chat/ChatInterface";
 import { 
   Waves, 
   Thermometer, 
@@ -118,10 +117,9 @@ const Index = () => {
                 <QuickActions />
               </div>
               
-              {/* Right Column - Activity & Chat */}
+              {/* Right Column - Activity */}
               <div className="space-y-6">
                 <RecentActivity />
-                <ChatInterface />
               </div>
             </div>
           </main>
