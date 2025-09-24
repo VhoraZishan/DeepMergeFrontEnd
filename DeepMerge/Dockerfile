@@ -4,14 +4,16 @@ ENV POETRY_VERSION=1.8.3 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Install system dependencies
+# Install system dependencies needed for Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    git \
     libpq-dev \
     gcc \
     g++ \
-    git \
+    libffi-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
@@ -20,14 +22,14 @@ RUN pip install --no-cache-dir poetry==${POETRY_VERSION}
 # Set working directory
 WORKDIR /app
 
-# Copy pyproject.toml and lock file
-COPY pyproject.toml poetry.lock README.md ./
+# Copy dependency files first (for Docker layer caching)
+COPY pyproject.toml poetry.lock ./
 
 # Disable virtualenvs & install main dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --only main
 
-# Copy app source code
+# Copy app code
 COPY app ./app
 
 # Expose port
