@@ -1,329 +1,102 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+import { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Send, Bot, User, MapPin, Loader2 } from "lucide-react";
-import { aiApi } from "@/lib/api";
+import { Loader2, Bot, User, Send } from "lucide-react";
+import { queryGemini } from "@/lib/gemini";
 
 interface Message {
   id: string;
+  role: "user" | "assistant";
   content: string;
-  sender: "user" | "ai";
-  timestamp: Date;
-  location?: {
-    latitude: number;
-    longitude: number;
-    city?: string;
-    country?: string;
-  };
-}
-
-interface UserLocation {
-  latitude: number;
-  longitude: number;
-  city?: string;
-  country?: string;
-  permission: 'granted' | 'denied' | 'pending';
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [locationRequested, setLocationRequested] = useState(false);
-  const { toast } = useToast();
-
-  // Initialize chat with welcome message
-  useEffect(() => {
-    const welcomeMessage: Message = {
+  const [messages, setMessages] = useState<Message[]>([
+    {
       id: "welcome",
-      content: "Hello! I'm your AI assistant for ocean data exploration. I can provide location-specific insights about ARGO floats, temperature profiles, salinity data, and oceanographic conditions. To give you the most accurate and relevant information, I'd like to access your location. Would you like to enable location services?",
-      sender: "ai",
-      timestamp: new Date()
-    };
-    setMessages([welcomeMessage]);
-  }, []);
+      role: "assistant",
+      content:
+        "👋 Hi! I’m the AI Ocean Assistant (Gemini-powered). Ask me about oceanographic data, fisheries insights, biodiversity, or molecular biology.",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Request location permission
-  const requestLocation = async () => {
-    if (!navigator.geolocation) {
-      toast({
-        title: "Location not supported",
-        description: "Your browser doesn't support location services.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const sendMessage = async () => {
+    if (!input.trim()) return;
 
-    setLocationRequested(true);
-    
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        // Get city/country from coordinates (using a reverse geocoding service)
-        try {
-          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-          const data = await response.json();
-          
-          const location: UserLocation = {
-            latitude,
-            longitude,
-            city: data.city || data.locality || "Unknown",
-            country: data.countryName || "Unknown",
-            permission: 'granted'
-          };
-          
-          setUserLocation(location);
-          
-          const locationMessage: Message = {
-            id: Date.now().toString(),
-            content: `Perfect! I can see you're located in ${location.city}, ${location.country}. I'll now provide location-specific ocean data and insights based on ARGO floats and oceanographic conditions in your region. What would you like to know about the ocean near you?`,
-            sender: "ai",
-            timestamp: new Date(),
-            location
-          };
-          
-          setMessages(prev => [...prev, locationMessage]);
-          
-          toast({
-            title: "Location enabled",
-            description: `Now providing data for ${location.city}, ${location.country}`,
-          });
-          
-        } catch (error) {
-          const basicLocation: UserLocation = {
-            latitude,
-            longitude,
-            permission: 'granted'
-          };
-          setUserLocation(basicLocation);
-          
-          const locationMessage: Message = {
-            id: Date.now().toString(),
-            content: `Great! I have your coordinates (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°). I'll provide ocean data specific to your location. What oceanographic information would you like to explore?`,
-            sender: "ai",
-            timestamp: new Date(),
-            location: basicLocation
-          };
-          
-          setMessages(prev => [...prev, locationMessage]);
-        }
-      },
-      (error) => {
-        setUserLocation({ latitude: 0, longitude: 0, permission: 'denied' });
-        
-        const errorMessage: Message = {
-          id: Date.now().toString(),
-          content: "I understand you prefer not to share your location. I can still help with ocean data queries, but the results will be general rather than location-specific. Feel free to mention specific coordinates or regions in your questions for targeted analysis.",
-          sender: "ai",
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, errorMessage]);
-        
-        toast({
-          title: "Location access denied",
-          description: "I'll provide general ocean data insights instead.",
-        });
-      }
-    );
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-
-    // Check if user is asking for location services
-    if (inputValue.toLowerCase().includes('location') || inputValue.toLowerCase().includes('where') && !locationRequested) {
-      requestLocation();
-      setInputValue("");
-      return;
-    }
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      sender: "user",
-      timestamp: new Date(),
-      location: userLocation || undefined
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setInputValue("");
-    setIsLoading(true);
+    // Add user message
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: input };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
 
     try {
-      // Get AI response from the backend
-      const result = await aiApi.query(inputValue);
-      const aiContent = result.response || result.answer || "I've processed your query. Here are the results:";
-      
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiContent,
-        sender: "ai",
-        timestamp: new Date(),
-        location: userLocation || undefined
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
-      console.error("API Error:", error);
-      const errorResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "I apologize, but I'm having trouble accessing the ocean database right now. Please try again in a moment, or rephrase your question.",
-        sender: "ai",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorResponse]);
+      // Direct Gemini query
+      const reply = await queryGemini(userMsg.content);
+      const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: reply };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: (Date.now() + 1).toString(), role: "assistant", content: "⚠️ Error calling Gemini API." },
+      ]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Card className="card-ocean h-[500px] flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center space-x-2">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-teal-500">
-            <Bot className="h-5 w-5 text-white" />
-          </div>
-          <span>AI Ocean Assistant</span>
+    <Card className="h-[600px] flex flex-col">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Bot className="h-5 w-5" /> AI Ocean Assistant
         </CardTitle>
       </CardHeader>
-      
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-6">
-          <div className="space-y-4 pb-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex items-start space-x-3 ${
-                  message.sender === "user" ? "flex-row-reverse space-x-reverse" : ""
-                }`}
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className={`text-white ${
-                    message.sender === "ai" 
-                      ? "bg-gradient-to-br from-blue-500 to-teal-500" 
-                      : "bg-gradient-to-br from-slate-600 to-slate-700"
-                  }`}>
-                    {message.sender === "ai" ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className={`max-w-[70%] p-3 rounded-lg ${
-                  message.sender === "user"
-                    ? "bg-primary text-primary-foreground ml-auto"
-                    : "bg-muted"
-                }`}>
-                  <p className="text-sm whitespace-pre-line">{message.content}</p>
-                  
-                  {/* Location indicator */}
-                  {message.location && (
-                    <div className="flex items-center space-x-1 mt-2">
-                      <MapPin className="h-3 w-3 opacity-60" />
-                      <span className="text-xs opacity-70">
-                        {message.location.city ? 
-                          `${message.location.city}, ${message.location.country}` :
-                          `${message.location.latitude.toFixed(2)}°, ${message.location.longitude.toFixed(2)}°`
-                        }
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs opacity-70">
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
-                    {message.sender === "ai" && userLocation?.permission === 'granted' && (
-                      <Badge variant="outline" className="text-xs">
-                        Location-aware
-                      </Badge>
-                    )}
+        <ScrollArea className="flex-1 px-4">
+          <div className="space-y-4 py-2">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className="flex gap-2 items-start max-w-[70%]">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback
+                      className={msg.role === "assistant" ? "bg-blue-500 text-white" : "bg-gray-600 text-white"}
+                    >
+                      {msg.role === "assistant" ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div
+                    className={`px-3 py-2 rounded-lg text-sm ${
+                      msg.role === "user" ? "bg-blue-600 text-white" : "bg-muted"
+                    }`}
+                  >
+                    {msg.content}
                   </div>
                 </div>
               </div>
             ))}
-            
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex items-start space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-teal-500 text-white">
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="max-w-[70%] p-3 rounded-lg bg-muted">
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Analyzing ocean data...</span>
-                  </div>
-                </div>
+            {loading && (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 className="animate-spin h-4 w-4" /> AI is thinking…
               </div>
             )}
           </div>
         </ScrollArea>
-        
-        <div className="p-4 border-t border-border">
-          {/* Location prompt */}
-          {!locationRequested && !userLocation && (
-            <div className="mb-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm text-blue-800 dark:text-blue-200">
-                    Enable location for personalized ocean data
-                  </span>
-                </div>
-                <Button size="sm" variant="outline" onClick={requestLocation}>
-                  Allow Location
-                </Button>
-              </div>
-            </div>
-          )}
-          
-          <div className="flex space-x-2">
-            <Input
-              placeholder={userLocation?.permission === 'granted' 
-                ? "Ask about ocean conditions near you..." 
-                : "Ask about ocean data, ARGO floats, temperature profiles..."
-              }
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && !isLoading && handleSendMessage()}
-              className="flex-1"
-              disabled={isLoading}
-            />
-            <Button 
-              onClick={handleSendMessage} 
-              className="btn-ocean"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          
-          {/* Location status */}
-          {userLocation && (
-            <div className="mt-2 flex items-center space-x-2 text-xs text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              <span>
-                {userLocation.permission === 'granted' 
-                  ? `Location-aware responses enabled ${userLocation.city ? `for ${userLocation.city}` : ''}`
-                  : 'Location access denied - providing general responses'
-                }
-              </span>
-            </div>
-          )}
+        <div className="p-3 border-t flex gap-2">
+          <Input
+            placeholder="Ask about SST, fish trends, biodiversity..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && sendMessage()}
+          />
+          <Button onClick={sendMessage} disabled={!input.trim() || loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </Button>
         </div>
       </CardContent>
     </Card>
