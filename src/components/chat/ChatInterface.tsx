@@ -57,7 +57,8 @@ export function ChatInterface() {
           <Bot className="h-5 w-5" /> AI Ocean Assistant
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0">
+      {/* THIS IS THE LINE THAT WAS CHANGED */}
+      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         <ScrollArea className="flex-1 px-4">
           <div className="space-y-4 py-2">
             {messages.map((msg) => (
